@@ -2,6 +2,8 @@
 #include <sstream>
 #include <string>
 
+#include "spdlog/spdlog.h"
+
 #include "WifiInitter.hpp"
 
 #include "shell/Shell.hpp"
@@ -15,25 +17,33 @@ WifiInitter::~WifiInitter() {
 }
 
 void WifiInitter::init() {
+    spdlog::info("Initializing wifi...");
+
     initNat();
     enableWifi();
     createWifiHotspot();
 }
 
 void WifiInitter::initNat() {
-    Shell::execute("sysctl -w net.ipv4.ip_forward=1");
+    Shell::CmdResult res = Shell::execute("sysctl -w net.ipv4.ip_forward=1");
+    
+    spdlog::info("Initialize NAT: {}", res.output);
 
     this->isNatInitialized_ = true;
 }
 
 void WifiInitter::enableWifi() {
-    Shell::execute("connmanctl enable wifi");
+    Shell::CmdResult res = Shell::execute("connmanctl enable wifi");
+
+    spdlog::info("Enable wifi: {}", res.output);
 
     this->isWifiEnabled_ = true;
 }
 
 void WifiInitter::createWifiHotspot() {
-    Shell::execute("connmanctl tether wifi on " + ssid_ + " " + password_);
+    Shell::CmdResult res = Shell::execute("connmanctl tether wifi on \'" + ssid_ + "\' \'" + password_ + "\'");
+
+    spdlog::info("Create wifi hotspot: {}", res.output);
 
     this->isHotspotCreated_ = true;
 }

@@ -20,9 +20,11 @@ target_include_directories(${SERVICE_NAME} PRIVATE
 )
 
 find_package(Threads REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
 
 target_link_libraries(${SERVICE_NAME}
     Threads::Threads
+    spdlog::spdlog_header_only
 )
 
 target_include_directories( ${SERVICE_NAME} PRIVATE
