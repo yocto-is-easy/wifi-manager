@@ -4,6 +4,7 @@
 #include <string>
 
 #include "IPasswordGenerator.hpp"
+#include "cfg/ConfigManager.hpp"
 
 class WifiInitter {
 private:
@@ -17,6 +18,8 @@ private:
     bool isNatInitialized_ = false;
     bool isWifiEnabled_ = false;
     bool isHotspotCreated_ = false;
+
+    ConfigManager configManager_;
 
 public:
     WifiInitter(std::string ssid, IPasswordGenerator& passwordGenerator);
@@ -34,4 +37,19 @@ private:
     void initNat();
     void enableWifi();
     void createWifiHotspot();
+
+    bool isTetheringEnabled();
+};
+
+class WifiInitterException : public std::exception {
+private:
+    std::string message_;
+
+public:
+    WifiInitterException(std::string message) : message_(message) {
+    }
+
+    const char* what() const throw() {
+        return message_.c_str();
+    }
 };

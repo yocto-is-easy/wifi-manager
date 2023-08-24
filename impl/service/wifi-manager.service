@@ -1,9 +1,13 @@
 [Unit]
 Description=Device Communication Initializer
+Requires=connman.service
+After=connman.service
 
 [Service]
 ExecStart=/usr/bin/wifi-manager-service
 Restart=always
+SuccessExitStatus=0
+RestartSec=2
 
 [Install]
 WantedBy=multi-user.target

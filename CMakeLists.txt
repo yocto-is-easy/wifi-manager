@@ -13,6 +13,7 @@ add_executable(${SERVICE_NAME}
     impl/service/src/PasswordGenerator.cpp
     impl/service/src/WifiInitter.cpp
     impl/service/src/shell/Shell.cpp
+    impl/service/src/cfg/ConfigManager.cpp
 )
 
 target_include_directories(${SERVICE_NAME} PRIVATE
@@ -21,10 +22,12 @@ target_include_directories(${SERVICE_NAME} PRIVATE
 
 find_package(Threads REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
+find_package(Boost REQUIRED COMPONENTS system)
 
 target_link_libraries(${SERVICE_NAME}
     Threads::Threads
     spdlog::spdlog_header_only
+    Boost::system
 )
 
 target_include_directories( ${SERVICE_NAME} PRIVATE

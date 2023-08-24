@@ -4,7 +4,7 @@
 
 class PasswordGenerator : public IPasswordGenerator {
 private:
-    std::string charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    std::string charset_;
 
 public:
     PasswordGenerator(std::string charset);

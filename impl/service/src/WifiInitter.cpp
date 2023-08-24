@@ -8,9 +8,20 @@
 
 #include "shell/Shell.hpp"
 
-WifiInitter::WifiInitter(std::string ssid, IPasswordGenerator& passwordGenerator) {
-    this->ssid_ = ssid;
-    this->password_ = passwordGenerator.generate(PASSWORD_LENGTH);
+WifiInitter::WifiInitter(std::string ssid, IPasswordGenerator& passwordGenerator) {    
+    if(configManager_.loadParam("ssid").has_value()) {
+        ssid_ = configManager_.loadParam("ssid").value();
+    } else {
+        ssid_ = ssid;
+        configManager_.saveParam("ssid", ssid);
+    }
+
+    if(configManager_.loadParam("password").has_value()) {
+        password_ = configManager_.loadParam("password").value();
+    } else {
+        password_ = passwordGenerator.generate(PASSWORD_LENGTH);
+        configManager_.saveParam("password", password_);
+    }
 }
 
 WifiInitter::~WifiInitter() {
@@ -22,6 +33,8 @@ void WifiInitter::init() {
     initNat();
     enableWifi();
     createWifiHotspot();
+
+    spdlog::info("Wifi initialized");
 }
 
 void WifiInitter::initNat() {
@@ -42,6 +55,9 @@ void WifiInitter::enableWifi() {
 
 void WifiInitter::createWifiHotspot() {
     Shell::CmdResult res = Shell::execute("connmanctl tether wifi on \'" + ssid_ + "\' \'" + password_ + "\'");
+    if(isTetheringEnabled()) {
+        throw WifiInitterException("Failed to create wifi hotspot");
+    }
 
     spdlog::info("Create wifi hotspot: {}", res.output);
 
@@ -95,4 +111,13 @@ std::string WifiInitter::getGatewayMac() {
 uint64_t WifiInitter::getSpeedMbps() {
     // TODO: implement
     return 0;
+}
+
+bool WifiInitter::isTetheringEnabled() {
+    std::string out = Shell::execute("ip link show tether 2>&1").output;
+
+    std::regex regex("can\'t find device");
+    std::smatch match;
+
+    return std::regex_search(out, match, regex);
 }
